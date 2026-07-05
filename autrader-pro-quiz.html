@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>quiz.html — AuTrader Pro Fundamentals Quiz</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:        #1b2430;
+    --panel:     #232e3d;
+    --panel-2:   #1f2937;
+    --line:      #35414f;
+    --ink:       #eef2f0;
+    --ink-dim:   #9aa8b5;
+    --amber:     #e8975c;
+    --amber-dim: #a86a3e;
+    --teal:      #5fb8b3;
+    --red:       #e08b8b;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    background:
+      radial-gradient(circle at 10% 0%, rgba(95,184,179,0.06), transparent 45%),
+      radial-gradient(circle at 90% 100%, rgba(232,151,92,0.06), transparent 45%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    min-height:100vh;
+  }
+
+  .mono{font-family:var(--mono);}
+
+  /* ---------- title bar ---------- */
+  .titlebar{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:10px 10px 0 0;
+    padding:.6rem 1rem;
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+  }
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+  .dot.red{background:#e08b8b;}
+  .dot.amber{background:#e8975c;}
+  .dot.green{background:#8fc4a3;}
+  .titlebar .fname{
+    margin-left:.75rem;
+    font-family:var(--mono);
+    font-size:.85rem;
+    color:var(--ink-dim);
+  }
+
+  .app-shell{
+    max-width:760px;
+    margin:4vh auto;
+    padding:0 1rem;
+  }
+
+  .console-frame{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-top:none;
+    border-radius:0 0 10px 10px;
+    padding:2rem;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+  }
+
+  /* ---------- code block on start screen ---------- */
+  .version-label{
+    font-family:var(--mono);
+    font-size:.72rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin:1.1rem 0 .4rem;
+  }
+  .version-label:first-of-type{margin-top:0;}
+
+  .code-block{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-left:3px solid var(--teal);
+    border-radius:6px;
+    padding:1.1rem 1.3rem;
+    font-family:var(--mono);
+    font-size:.78rem;
+    line-height:1.6;
+    color:#c9d4de;
+    overflow-x:auto;
+    overflow-y:auto;
+    max-height:260px;
+    white-space:pre;
+  }
+  .code-block .kw{color:var(--amber);}
+  .code-block .str{color:#a8c98a;}
+  .code-block .cm{color:#6b7887;font-style:italic;}
+  .code-block .fn{color:var(--teal);}
+
+  .code-block::-webkit-scrollbar{width:6px;}
+  .code-block::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+
+  .eyebrow{
+    font-family:var(--mono);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    font-size:.72rem;
+    color:var(--teal);
+  }
+
+  h1.quiz-title{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:1.9rem;
+    margin:.3rem 0 1rem;
+    color:var(--ink);
+  }
+  h1.quiz-title .prompt{color:var(--amber);}
+
+  .lead-text{color:var(--ink-dim);font-size:.98rem;line-height:1.6;}
+
+  .btn-run{
+    font-family:var(--mono);
+    background:var(--amber);
+    border:none;
+    color:#1b2430;
+    font-weight:600;
+    padding:.65rem 1.4rem;
+    border-radius:6px;
+    letter-spacing:.02em;
+  }
+  .btn-run:hover{background:#f0a870;color:#1b2430;}
+  .btn-run::before{content:"$ ";opacity:.6;}
+
+  .btn-ghost{
+    font-family:var(--mono);
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    padding:.6rem 1.2rem;
+    border-radius:6px;
+  }
+  .btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+
+  /* ---------- progress ---------- */
+  .route-progress{
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    margin-bottom:1.6rem;
+    font-family:var(--mono);
+    font-size:.78rem;
+    color:var(--ink-dim);
+  }
+  .progress-track{
+    flex:1;
+    height:6px;
+    background:var(--panel-2);
+    border-radius:4px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--teal),var(--amber));
+    transition:width .35s ease;
+  }
+
+  /* ---------- question ---------- */
+  .req-line{
+    font-family:var(--mono);
+    font-size:.78rem;
+    color:var(--teal);
+    margin-bottom:.4rem;
+  }
+  .req-line .method{color:var(--amber);font-weight:600;}
+  .req-line .method.patch{color:var(--teal);}
+
+  .question-code{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-left:3px solid var(--amber);
+    border-radius:6px;
+    padding:.9rem 1.1rem;
+    font-family:var(--mono);
+    font-size:.85rem;
+    color:#c9d4de;
+    overflow-x:auto;
+    white-space:pre;
+    margin-bottom:1rem;
+  }
+  .question-code .blank{
+    color:var(--amber);
+    border-bottom:2px dashed var(--amber);
+    padding:0 .15rem;
+  }
+  .answer-btn.code-opt span:last-child{
+    font-family:var(--mono);
+    font-size:.85rem;
+  }
+
+  .question-text{
+    font-size:1.15rem;
+    font-weight:600;
+    margin-bottom:1.3rem;
+    line-height:1.5;
+  }
+
+  .answer-btn{
+    display:flex;
+    align-items:center;
+    gap:.7rem;
+    width:100%;
+    text-align:left;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--ink);
+    padding:.75rem 1rem;
+    border-radius:8px;
+    margin-bottom:.65rem;
+    font-family:var(--sans);
+    font-size:.95rem;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .answer-btn:hover{border-color:var(--teal);}
+  .answer-btn .tag{
+    font-family:var(--mono);
+    font-size:.72rem;
+    color:var(--ink-dim);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:.05rem .4rem;
+    flex-shrink:0;
+  }
+  .answer-btn.selected{
+    border-color:var(--amber);
+    background:rgba(232,151,92,0.1);
+  }
+  .answer-btn.selected .tag{border-color:var(--amber);color:var(--amber);}
+
+  .answer-btn.correct{
+    border-color:#8fc4a3;
+    background:rgba(143,196,163,0.12);
+  }
+  .answer-btn.correct .tag{border-color:#8fc4a3;color:#8fc4a3;}
+  .answer-btn.wrong{
+    border-color:var(--red);
+    background:rgba(224,139,139,0.12);
+  }
+  .answer-btn.wrong .tag{border-color:var(--red);color:var(--red);}
+  .answer-btn:disabled{opacity:1;cursor:default;}
+
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:1.5rem;
+  }
+
+  /* ---------- console log ---------- */
+  .server-log{
+    margin-top:1.6rem;
+    background:#141b24;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:.9rem 1rem;
+    font-family:var(--mono);
+    font-size:.72rem;
+    color:#7f8ea0;
+    max-height:120px;
+    overflow-y:auto;
+  }
+  .server-log .log-line{margin-bottom:.15rem;}
+  .server-log .ok{color:#8fc4a3;}
+  .server-log .err{color:var(--red);}
+  .server-log::-webkit-scrollbar{width:6px;}
+  .server-log::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+
+  /* ---------- results ---------- */
+  .status-badge{
+    font-family:var(--mono);
+    font-size:3rem;
+    font-weight:700;
+    letter-spacing:-.02em;
+  }
+  .status-200{color:#8fc4a3;}
+  .status-206{color:var(--teal);}
+  .status-400{color:var(--amber);}
+  .status-500{color:var(--red);}
+
+  .score-line{
+    font-family:var(--mono);
+    color:var(--ink-dim);
+    font-size:.95rem;
+  }
+
+  .breakdown{
+    margin-top:1.5rem;
+    border-top:1px solid var(--line);
+    padding-top:1rem;
+  }
+  .breakdown-row{
+    display:flex;
+    justify-content:space-between;
+    font-family:var(--mono);
+    font-size:.78rem;
+    padding:.35rem 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .breakdown-row .res-ok{color:#8fc4a3;}
+  .breakdown-row .res-bad{color:var(--red);}
+
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  @media (max-width:576px){
+    .console-frame{padding:1.25rem;}
+    .status-badge{font-size:2.2rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <div class="titlebar">
+    <span class="dot red"></span>
+    <span class="dot amber"></span>
+    <span class="dot green"></span>
+    <span class="fname">autrader-pro/index.html — bootstrap</span>
+  </div>
+
+  <div class="console-frame">
+
+    <!-- ============ START SCREEN ============ -->
+    <section id="screen-start" class="screen active">
+      <div class="eyebrow">GET /quiz/start</div>
+      <h1 class="quiz-title"><span class="prompt">&gt;</span> AuTrader Pro Fundamentals</h1>
+      <p class="lead-text">
+        100 questions built from the exact AuTrader Pro dashboard code —
+        the localStorage auth gate, the PayFast deposit flow, the
+        candlestick chart engine, and the simulated algo-trading logic.
+        20 on how it all works, 80 where you complete the missing code
+        yourself.
+      </p>
+
+      <div class="version-label">Auth gate — localStorage login/signup</div>
+      <div class="code-block" id="code-sample-v1"></div>
+
+      <div class="version-label">PayFast deposit flow</div>
+      <div class="code-block" id="code-sample-v2"></div>
+
+      <div class="version-label">Algorithmic trading engine</div>
+      <div class="code-block" id="code-sample-v3"></div>
+
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <span class="mono" style="font-size:.78rem;color:var(--ink-dim);">100 questions · scored on submit</span>
+        <button class="btn-run" onclick="startQuiz()">node quiz-server.js</button>
+      </div>
+    </section>
+
+    <!-- ============ QUIZ SCREEN ============ -->
+    <section id="screen-quiz" class="screen">
+      <div class="route-progress">
+        <span id="progress-label">Q1/10</span>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:10%"></div></div>
+        <span id="score-label">score: 0</span>
+      </div>
+
+      <div class="req-line"><span class="method">GET</span> <span id="req-path">/question/1</span></div>
+      <div class="question-text" id="question-text"></div>
+
+      <div id="answers"></div>
+
+      <div class="nav-row">
+        <button class="btn-ghost" id="btn-back" onclick="goBack()">&larr; back</button>
+        <button class="btn-run" id="btn-next" onclick="goNext()" disabled>next &rarr;</button>
+      </div>
+
+      <div class="server-log" id="server-log"></div>
+    </section>
+
+    <!-- ============ RESULTS SCREEN ============ -->
+    <section id="screen-results" class="screen">
+      <div class="eyebrow">GET /quiz/results</div>
+      <div class="d-flex align-items-baseline gap-3 mt-2">
+        <div class="status-badge" id="result-status">200</div>
+        <div>
+          <div class="mono" style="font-weight:600;font-size:1.1rem;" id="result-title">OK</div>
+          <div class="score-line" id="result-summary">7 / 10 correct</div>
+        </div>
+      </div>
+      <p class="lead-text mt-3" id="result-message"></p>
+
+      <div class="breakdown" id="breakdown"></div>
+
+      <div class="d-flex justify-content-between mt-4">
+        <button class="btn-ghost" onclick="restartQuiz()">&larr; restart</button>
+        <span class="mono" style="font-size:.78rem;color:var(--ink-dim);align-self:center;">connection closed</span>
+      </div>
+    </section>
+
+  </div>
+  
+  <footer style="text-align: center; padding: 20px; margin-top: 40px; font-size: 0.85rem; color: #888; border-top: 1px solid #e0e0e0;">
+  <p>© 2026. Created by Lona Smith in the Republic of South Africa · <a href="mailto:lonasmithhq@gmail.com" style="color: #888; text-decoration: none;">lonasmithhq@gmail.com</a></p>
+</footer>
+  
+  
+</div>
+
+<script>
+/* ---------------- source snippet (displayed, syntax-tinted) ---------------- */
+document.getElementById('code-sample-v1').innerHTML =
+'<span class="kw">const</span> AUTH_USERS_KEY = <span class="str">\'autrader_users\'</span>;\n' +
+'<span class="kw">const</span> AUTH_SESSION_KEY = <span class="str">\'autrader_session\'</span>;\n\n' +
+'<span class="kw">function</span> <span class="fn">getAuthUsers</span>(){\n' +
+'  <span class="kw">try</span>{ <span class="kw">return</span> JSON.<span class="fn">parse</span>(localStorage.<span class="fn">getItem</span>(AUTH_USERS_KEY) || <span class="str">\'{}\'</span>); }\n' +
+'  <span class="kw">catch</span>(e){ <span class="kw">return</span> {}; }\n' +
+'}\n' +
+'<span class="kw">function</span> <span class="fn">saveAuthUsers</span>(users){ localStorage.<span class="fn">setItem</span>(AUTH_USERS_KEY, JSON.<span class="fn">stringify</span>(users)); }\n\n' +
+'<span class="kw">function</span> <span class="fn">handleSignup</span>(){\n' +
+'  <span class="kw">const</span> user = document.<span class="fn">getElementById</span>(<span class="str">\'signupUser\'</span>).value.<span class="fn">trim</span>();\n' +
+'  <span class="kw">const</span> pass = document.<span class="fn">getElementById</span>(<span class="str">\'signupPass\'</span>).value;\n' +
+'  <span class="kw">if</span>(pass.length &lt; 6){ authStatus(<span class="str">\'signupStatus\'</span>,<span class="str">\'⚠ Password must be at least 6 characters.\'</span>,<span class="str">\'err\'</span>); <span class="kw">return</span>; }\n' +
+'  <span class="kw">const</span> users = <span class="fn">getAuthUsers</span>();\n' +
+'  <span class="kw">const</span> key = user.<span class="fn">toLowerCase</span>();\n' +
+'  <span class="kw">if</span>(users[key]){ authStatus(<span class="str">\'signupStatus\'</span>,<span class="str">\'⚠ That username is already taken.\'</span>,<span class="str">\'err\'</span>); <span class="kw">return</span>; }\n' +
+'  users[key] = { username:user, ..., createdAt:<span class="kw">new</span> Date().<span class="fn">toISOString</span>() };\n' +
+'  <span class="fn">saveAuthUsers</span>(users);\n' +
+'}\n\n' +
+'<span class="kw">function</span> <span class="fn">handleLogin</span>(){\n' +
+'  <span class="kw">const</span> user = document.<span class="fn">getElementById</span>(<span class="str">\'loginUser\'</span>).value.<span class="fn">trim</span>();\n' +
+'  <span class="kw">const</span> pass = document.<span class="fn">getElementById</span>(<span class="str">\'loginPass\'</span>).value;\n' +
+'  <span class="kw">const</span> users = <span class="fn">getAuthUsers</span>();\n' +
+'  <span class="kw">const</span> record = users[user.<span class="fn">toLowerCase</span>()];\n' +
+'  <span class="kw">if</span>(!record || record.password !== pass){ authStatus(<span class="str">\'loginStatus\'</span>,<span class="str">\'⚠ Invalid username or password.\'</span>,<span class="str">\'err\'</span>); <span class="kw">return</span>; }\n' +
+'  setTimeout(()=&gt;{ <span class="fn">startSession</span>(record.username); }, 300);\n' +
+'}\n\n' +
+'<span class="kw">function</span> <span class="fn">startSession</span>(username){\n' +
+'  localStorage.<span class="fn">setItem</span>(AUTH_SESSION_KEY, username.<span class="fn">toLowerCase</span>());\n' +
+'  document.<span class="fn">getElementById</span>(<span class="str">\'topbarUser\'</span>).textContent = username;\n' +
+'  document.<span class="fn">getElementById</span>(<span class="str">\'authOverlay\'</span>).style.display = <span class="str">\'none\'</span>;\n' +
+'}';
+
+document.getElementById('code-sample-v2').innerHTML =
+'<span class="kw">const</span> PAYFAST = {\n' +
+'  merchantId:  <span class="str">\'13828243\'</span>,\n' +
+'  merchantKey: <span class="str">\'bujciooz9vr6i\'</span>,\n' +
+'  returnUrl:   <span class="str">\'https://www.payfast.co.za/eng/success\'</span>,\n' +
+'  cancelUrl:   <span class="str">\'https://www.payfast.co.za/eng/cancel\'</span>\n' +
+'};\n\n' +
+'<span class="kw">function</span> <span class="fn">generatePaymentId</span>(){<span class="kw">return</span> <span class="str">\'APAT-\'</span>+Date.<span class="fn">now</span>()+<span class="str">\'-\'</span>+Math.random().toString(36).substr(2,6).toUpperCase();}\n\n' +
+'<span class="kw">function</span> <span class="fn">initiateDeposit</span>(){\n' +
+'  <span class="kw">const</span> amount=parseFloat(document.<span class="fn">getElementById</span>(<span class="str">\'depositAmount\'</span>).value);\n' +
+'  <span class="kw">const</span> st=document.<span class="fn">getElementById</span>(<span class="str">\'depositStatus\'</span>);\n' +
+'  <span class="kw">if</span>(!amount||amount&lt;10){showStatus(st,<span class="str">\'⚠ Minimum deposit is R10.00\'</span>,<span class="str">\'err\'</span>);<span class="kw">return</span>;}\n' +
+'  <span class="kw">const</span> paymentId=<span class="fn">generatePaymentId</span>(),amountFmt=amount.toFixed(2);\n' +
+'  document.<span class="fn">getElementById</span>(<span class="str">\'pf_merchant_id\'</span>).value=PAYFAST.merchantId;\n' +
+'  document.<span class="fn">getElementById</span>(<span class="str">\'pf_amount\'</span>).value=amountFmt;\n' +
+'  document.<span class="fn">getElementById</span>(<span class="str">\'pf_payment_id\'</span>).value=paymentId;\n' +
+'  showStatus(st,<span class="str">\'Opening PayFast checkout...\'</span>,<span class="str">\'loading\'</span>);\n' +
+'  setTimeout(()=&gt;{\n' +
+'    document.<span class="fn">getElementById</span>(<span class="str">\'payfastForm\'</span>).<span class="fn">submit</span>();\n' +
+'    showStatus(st,<span class="str">\'✅ PayFast opened...\'</span>,<span class="str">\'info\'</span>);\n' +
+'  },500);\n' +
+'}\n\n' +
+'<span class="kw">function</span> <span class="fn">confirmDeposit</span>(amount,paymentId,firstName){\n' +
+'  STATE.balance+=amount;STATE.totalDeposited+=amount;STATE.funded=true;\n' +
+'  <span class="fn">updateBalance</span>();<span class="fn">updateStats</span>();\n' +
+'  showToast(<span class="str">\'✓ R\'</span>+amount.toFixed(2)+<span class="str">\' deposited — Algorithm now active!\'</span>,<span class="str">\'ok\'</span>);\n' +
+'  document.<span class="fn">getElementById</span>(<span class="str">\'algoStatusTxt\'</span>).textContent=<span class="str">\'ALGORITHM RUNNING\'</span>;\n' +
+'  setTimeout(()=&gt;closeModal(<span class="str">\'depositModal\'</span>),3000);\n' +
+'}';
+
+document.getElementById('code-sample-v3').innerHTML =
+'<span class="kw">const</span> STATE = {\n' +
+'  balance:0,totalDeposited:0,totalWithdrawn:0,funded:false,\n' +
+'  pnlDay:0,pnlAll:0,wins:0,losses:0,streak:0,\n' +
+'  algoRunning:true,tf:1,basePrice:2324.50,currentPrice:2324.50,\n' +
+'  openTrades:0,totalExecuted:0,selectedMethod:<span class="str">\'eft\'</span>,\n' +
+'  withdrawalLog:[],pendingWithdrawals:0\n' +
+'};\n\n' +
+'setInterval(()=&gt;{\n' +
+'  <span class="kw">if</span>(!STATE.algoRunning||!STATE.funded||STATE.balance&lt;=0)<span class="kw">return</span>;\n' +
+'  <span class="kw">if</span>(Math.random()&gt;0.7)<span class="kw">return</span>;\n' +
+'  <span class="fn">executeAlgoTrade</span>(Math.random()&gt;0.5?<span class="str">\'buy\'</span>:<span class="str">\'sell\'</span>);\n' +
+'},4000);\n\n' +
+'<span class="kw">function</span> <span class="fn">executeAlgoTrade</span>(dir,lot=null){\n' +
+'  <span class="kw">if</span>(!STATE.funded||STATE.balance&lt;=0){showToast(<span class="str">\'⚠ Deposit funds to start trading\'</span>,<span class="str">\'err\'</span>);<span class="kw">return</span>;}\n' +
+'  <span class="kw">const</span> entry=STATE.currentPrice;\n' +
+'  STATE.openTrades++;STATE.totalExecuted++;\n' +
+'  <span class="kw">const</span> isWin=Math.random()&lt;0.95;\n' +
+'  setTimeout(()=&gt;{\n' +
+'    <span class="kw">const</span> pnl=isWin?+(lot*10*35).toFixed(2):-(lot*10*12).toFixed(2);\n' +
+'    STATE.balance+=pnl;STATE.pnlDay+=pnl;STATE.pnlAll+=pnl;\n' +
+'    <span class="kw">if</span>(isWin){STATE.wins++;}<span class="kw">else</span>{STATE.losses++;}\n' +
+'    <span class="fn">updateStats</span>();<span class="fn">updateBalance</span>();\n' +
+'  },2000+Math.random()*4000);\n' +
+'}\n\n' +
+'<span class="kw">function</span> <span class="fn">toggleAlgo</span>(){\n' +
+'  STATE.algoRunning=!STATE.algoRunning;\n' +
+'  document.<span class="fn">getElementById</span>(<span class="str">\'toggleAuto\'</span>).classList.<span class="fn">toggle</span>(<span class="str">\'on\'</span>,STATE.algoRunning);\n' +
+'  document.<span class="fn">getElementById</span>(<span class="str">\'algoDot\'</span>).classList.<span class="fn">toggle</span>(<span class="str">\'off\'</span>,!STATE.algoRunning);\n' +
+'}';
+
+/* ---------------- question bank ---------------- */
+const questions = [
+  {
+    q: "Where are user accounts (username/password) stored in this app?",
+    options: [
+      "In a remote SQL database",
+      "In the browser's localStorage only — nothing is sent to a server",
+      "In a cookie shared across devices",
+      "In a session file on PayFast's servers"
+    ],
+    correct: 1
+  },
+  {
+    q: "What does STATE.funded control?",
+    options: [
+      "Whether the user can log in",
+      "Whether the algorithm is allowed to execute trades",
+      "The chart's timeframe",
+      "Whether withdrawals are enabled"
+    ],
+    correct: 1
+  },
+  {
+    q: "What is the purpose of the hidden #payfastForm on the page?",
+    options: [
+      "To validate the deposit amount client-side",
+      "To POST the deposit details to PayFast's own checkout page",
+      "To store the user's card number locally",
+      "To render the withdrawal log"
+    ],
+    correct: 1
+  },
+  {
+    q: "What triggers executeAlgoTrade() automatically, without the user clicking anything?",
+    options: [
+      "A setInterval loop that fires periodically when the algorithm is running and funded",
+      "A click on the BUY button only",
+      "The page's onload event, once",
+      "A webhook from PayFast"
+    ],
+    correct: 0
+  },
+  {
+    q: "What does toggleAlgo() actually do?",
+    options: [
+      "Deletes all trade history",
+      "Flips STATE.algoRunning and updates the toggle switch / status dot in the UI",
+      "Opens the deposit modal",
+      "Resets the account balance to zero"
+    ],
+    correct: 1
+  },
+  {
+    q: "What does the #priceChart canvas element render?",
+    options: [
+      "A pie chart of withdrawal methods",
+      "A live candlestick chart of the simulated XAU/USD price",
+      "A bar chart of daily logins",
+      "A static logo image"
+    ],
+    correct: 1
+  },
+  {
+    q: "How does the code decide whether a simulated algo trade is a win or a loss?",
+    options: [
+      "It always wins",
+      "Math.random() is compared against a fixed win probability (0.95)",
+      "It checks the real gold price from an API",
+      "The user chooses win or loss manually"
+    ],
+    correct: 1
+  },
+  {
+    q: "What does updateBalance() do?",
+    options: [
+      "Sends the balance to PayFast",
+      "Writes STATE.balance into the sideBalance element, formatted with commas",
+      "Resets STATE.balance to zero",
+      "Opens the withdrawal modal"
+    ],
+    correct: 1
+  },
+  {
+    q: "What happens once handleLogin() confirms valid credentials?",
+    options: [
+      "The page reloads completely",
+      "startSession() runs, saving the session key and hiding the auth overlay",
+      "A new account is created automatically",
+      "The deposit modal opens"
+    ],
+    correct: 1
+  },
+  {
+    q: "What does the withdrawal log modal (#wlogModal) display?",
+    options: [
+      "The user's login history",
+      "A list of past withdrawal requests and their status",
+      "The candlestick chart in table form",
+      "PayFast's terms and conditions"
+    ],
+    correct: 1
+  },
+  {
+    q: "What does the semi-transparent repeating-linear-gradient on body::before simulate?",
+    options: [
+      "A loading spinner",
+      "A CRT/retro terminal scanline overlay effect",
+      "A progress bar",
+      "A dark mode toggle"
+    ],
+    correct: 1
+  },
+  {
+    q: "What happens in the initAuth() self-invoking function when the page first loads?",
+    options: [
+      "It always shows the signup tab",
+      "It checks localStorage for a saved session and hides the auth overlay if a valid user is found",
+      "It resets the account balance",
+      "It fetches account data from PayFast"
+    ],
+    correct: 1
+  },
+  {
+    q: "What does the gauge ring's stroke-dashoffset value represent?",
+    options: [
+      "The current gold price",
+      "How much of the circular ring is 'filled' to visually represent the win-rate percentage",
+      "The number of open trades",
+      "The chart's zoom level"
+    ],
+    correct: 1
+  },
+  {
+    q: "Why does executeAlgoTrade() check STATE.funded and STATE.balance before placing a trade?",
+    options: [
+      "To prevent trades from executing before the user has deposited funds",
+      "To calculate the win rate",
+      "To choose the trade direction",
+      "To pick the chart timeframe"
+    ],
+    correct: 0
+  },
+  {
+    q: "What does closeCandleAndOpen() do to the currently live candle?",
+    options: [
+      "Deletes it permanently",
+      "Pushes the completed candle into history and starts a fresh live candle",
+      "Changes its color to gold",
+      "Sends it to PayFast"
+    ],
+    correct: 1
+  },
+  {
+    q: "What happens when a user clicks a different timeframe tab (M1/M5/M15/H1)?",
+    options: [
+      "Nothing changes visually",
+      "setTF() updates STATE.tf, regenerates candles, restarts the timers, and highlights the selected tab",
+      "It opens the deposit modal",
+      "It logs the user out"
+    ],
+    correct: 1
+  },
+  {
+    q: "Why does confirmDeposit() only run after the user manually clicks 'I'VE PAID'?",
+    options: [
+      "Because PayFast requires manual confirmation for all payments",
+      "Because there's no server-side webhook here, so the user self-confirms after completing checkout on PayFast",
+      "Because the deposit amount is unknown until then",
+      "Because it's required by South African banking law"
+    ],
+    correct: 1
+  },
+  {
+    q: "What's the key difference between a PayPal withdrawal log entry and a bank withdrawal log entry?",
+    options: [
+      "PayPal entries have no reference ID",
+      "PayPal withdrawals store an email address, while bank withdrawals store bank name, account number, and branch code",
+      "There is no difference — both store the same fields",
+      "Bank withdrawals don't have a status field"
+    ],
+    correct: 1
+  },
+  {
+    q: "What does the @media(max-width:768px) CSS block primarily adjust?",
+    options: [
+      "Color scheme for dark mode",
+      "Touch-friendly sizing — bigger buttons and larger input font to avoid iOS zoom",
+      "The chart's data source",
+      "The login form's validation rules"
+    ],
+    correct: 1
+  },
+  {
+    q: "What kinds of actions trigger showToast() to display a temporary notification?",
+    options: [
+      "Only page load",
+      "Actions like deposits, withdrawals, toggling the algorithm, or changing the chart timeframe",
+      "Only errors",
+      "Only successful logins"
+    ],
+    correct: 1
+  },
+
+  /* ---------- code-completion questions ---------- */
+  {
+    type: "fill",
+    code: "const AUTH_USERS_KEY = '<span class=\"blank\">____</span>';",
+    q: "Complete the missing code:",
+    options: ["auth_users", "autrader_users", "users_key", "AUTRADER_USERS"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "function getAuthUsers(){\n  try{ return JSON.<span class=\"blank\">____</span>(localStorage.getItem(AUTH_USERS_KEY) || '{}'); }\n  catch(e){ return {}; }\n}",
+    q: "Complete the missing code:",
+    options: ["stringify", "parse", "decode", "toObject"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "function saveAuthUsers(users){ localStorage.<span class=\"blank\">____</span>(AUTH_USERS_KEY, JSON.stringify(users)); }",
+    q: "Complete the missing code:",
+    options: ["getItem", "setItem", "save", "write"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "if(pass.length < <span class=\"blank\">____</span>){ authStatus('signupStatus','⚠ Password must be at least 6 characters.','err'); return; }",
+    q: "Complete the missing code:",
+    options: ["4", "6", "8", "10"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "function startSession(username){\n  localStorage.setItem(AUTH_SESSION_KEY, username.<span class=\"blank\">____</span>());\n}",
+    q: "Complete the missing code:",
+    options: ["toUpperCase", "trim", "toLowerCase", "toString"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "const PAYFAST = {\n  merchantId:  '<span class=\"blank\">____</span>',\n  merchantKey: 'bujciooz9vr6i',\n  ...\n};",
+    q: "Complete the missing code:",
+    options: ["13828243", "AuTrader001", "PF-GOLD-2026", "80808080"],
+    correct: 0
+  },
+  {
+    type: "fill",
+    code: "const STATE = {\n  balance:0,totalDeposited:0,totalWithdrawn:0,funded:false,\n  ...,\n  algoRunning:<span class=\"blank\">____</span>,tf:1,basePrice:2324.50,currentPrice:2324.50,\n  ...\n};",
+    q: "Complete the missing code:",
+    options: ["false", "true", "null", "'on'"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "function toggleAlgo(){\n  STATE.algoRunning=!STATE.algoRunning;\n  document.getElementById('toggleAuto').classList.<span class=\"blank\">____</span>('on',STATE.algoRunning);\n}",
+    q: "Complete the missing code:",
+    options: ["add", "remove", "toggle", "contains"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "setInterval(()=>{\n  if(!STATE.algoRunning||!STATE.funded||STATE.balance<=0)return;\n  if(Math.random()><span class=\"blank\">____</span>)return;\n  executeAlgoTrade(Math.random()>0.5?'buy':'sell');\n},4000);",
+    q: "Complete the missing code:",
+    options: ["0.3", "0.5", "0.7", "1"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "const isWin=Math.random()<<span class=\"blank\">____</span>;",
+    q: "Complete the missing code:",
+    options: ["0.5", "0.7", "0.9", "0.95"],
+    correct: 3
+  },
+  {
+    type: "fill",
+    code: "function generatePaymentId(){return 'APAT-'+Date.<span class=\"blank\">____</span>()+'-'+Math.random().toString(36).substr(2,6).toUpperCase();}",
+    q: "Complete the missing code:",
+    options: ["getTime", "now", "toISOString", "valueOf"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "if(!amount||amount<<span class=\"blank\">____</span>){showStatus(st,'⚠ Minimum deposit is R10.00','err');return;}",
+    q: "Complete the missing code:",
+    options: ["1", "5", "10", "100"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "document.getElementById('pf_merchant_id').value=PAYFAST.<span class=\"blank\">____</span>;",
+    q: "Complete the missing code:",
+    options: ["id", "merchantId", "merchantKey", "merchant"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "showStatus(st,'Opening PayFast checkout...','loading');\nsetTimeout(()=>{\n  document.getElementById('payfastForm').<span class=\"blank\">____</span>();\n},500);",
+    q: "Complete the missing code:",
+    options: ["click", "open", "submit", "send"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "function confirmDeposit(amount,paymentId,firstName){\n  STATE.balance+=amount;STATE.totalDeposited+=<span class=\"blank\">____</span>;STATE.funded=true;\n}",
+    q: "Complete the missing code:",
+    options: ["amount", "paymentId", "1", "firstName"],
+    correct: 0
+  },
+  {
+    type: "fill",
+    code: "const refId='WD-'+Date.now()+'-'+Math.random().toString(36).<span class=\"blank\">____</span>(2,5).toUpperCase();",
+    q: "Complete the missing code:",
+    options: ["slice", "substr", "splice", "substring"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "STATE.pendingWithdrawals++;STATE.balance-=amount;STATE.totalWithdrawn+=<span class=\"blank\">____</span>;",
+    q: "Complete the missing code:",
+    options: ["amount", "refId", "1", "STATE.balance"],
+    correct: 0
+  },
+  {
+    type: "fill",
+    code: "function closeModal(id){document.getElementById(id).classList.<span class=\"blank\">____</span>('show');}",
+    q: "Complete the missing code:",
+    options: ["add", "remove", "toggle", "contains"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "function openModal(type){\n  ...\n  document.getElementById(type+'Modal').classList.<span class=\"blank\">____</span>('show');\n}",
+    q: "Complete the missing code:",
+    options: ["add", "remove", "toggle", "set"],
+    correct: 0
+  },
+  {
+    type: "fill",
+    code: "cvs.addEventListener('<span class=\"blank\">____</span>',e=>{\n  const r=cvs.getBoundingClientRect();\n  mouseX=(e.clientX-r.left)*(cvs.width/r.width);\n  mouseY=(e.clientY-r.top)*(cvs.height/r.height);\n  drawChart();\n});",
+    q: "Complete the missing code (fires continuously as the pointer moves over the chart):",
+    options: ["click", "mouseover", "mousemove", "mouseenter"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "function showAuthTab(tab){\n  document.getElementById('authTabLogin').classList.<span class=\"blank\">____</span>('active', tab==='login');\n}",
+    q: "Complete the missing code:",
+    options: ["add", "remove", "toggle", "contains"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "if(!/^[a-zA-Z0-9_]{3,20}$/.<span class=\"blank\">____</span>(user)){ authStatus('signupStatus','⚠ Username must be 3-20 characters...','err'); return; }",
+    q: "Complete the missing code:",
+    options: ["match", "test", "exec", "check"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "if(pass <span class=\"blank\">____</span> pass2){ authStatus('signupStatus','⚠ Passwords do not match.','err'); return; }",
+    q: "Complete the missing code:",
+    options: ["==", "!==", "=", "<>"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "users[key] = { username:user, email, password:pass, createdAt:new Date().<span class=\"blank\">____</span>() };",
+    q: "Complete the missing code:",
+    options: ["getTime", "toISOString", "toLocaleString", "now"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "function handleLogout(){\n  localStorage.<span class=\"blank\">____</span>(AUTH_SESSION_KEY);\n}",
+    q: "Complete the missing code:",
+    options: ["clear", "removeItem", "deleteItem", "unset"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "const savedKey = localStorage.<span class=\"blank\">____</span>(AUTH_SESSION_KEY);",
+    q: "Complete the missing code:",
+    options: ["setItem", "getItem", "fetchItem", "readItem"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "['loginUser','loginPass'].forEach(id=>document.getElementById(id).addEventListener('keydown', e=>{ if(e.key==='<span class=\"blank\">____</span>') handleLogin(); }));",
+    q: "Complete the missing code:",
+    options: ["Tab", "Enter", "Space", "Escape"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "function tickPrice(){\n  STATE.currentPrice=Math.max(1800,STATE.currentPrice+(Math.random()-0.495)*<span class=\"blank\">____</span>);\n}",
+    q: "Complete the missing code:",
+    options: ["0.5", "1.2", "5", "10"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "const TF_INTERVALS={1:3000,5:6000,15:12000,60:<span class=\"blank\">____</span>};",
+    q: "Complete the missing code:",
+    options: ["15000", "18000", "20000", "24000"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "function resizeCanvas(){\n  cvs.width=cvs.parentElement.clientWidth||<span class=\"blank\">____</span>;\n}",
+    q: "Complete the missing code:",
+    options: ["400", "600", "800", "1000"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "function fmtTime(ts){\n  const d=new Date(ts);\n  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'<span class=\"blank\">____</span>');\n}",
+    q: "Complete the missing code:",
+    options: ["1", "'0'", "' '", "'00'"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "function startTimers(){\n  clearInterval(priceTimer);clearInterval(candleTimer);\n  priceTimer=setInterval(tickPrice,<span class=\"blank\">____</span>);\n}",
+    q: "Complete the missing code:",
+    options: ["400", "800", "1500", "2000"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "candleTimer=setInterval(closeCandleAndOpen,TF_INTERVALS[STATE.<span class=\"blank\">____</span>]);",
+    q: "Complete the missing code:",
+    options: ["tf", "basePrice", "currentPrice", "openTrades"],
+    correct: 0
+  },
+  {
+    type: "fill",
+    code: "function setTF(tf){\n  STATE.tf=tf;\n  ...\n  document.getElementById('tf'+tf).style.color='var(--<span class=\"blank\">____</span>)';\n}",
+    q: "Complete the missing code:",
+    options: ["green", "red", "gold", "blue"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "let ema=allC[0].c;\nconst k=<span class=\"blank\">____</span>/21,emaLine=allC.map(c=>{ema=c.c*k+ema*(1-k);return ema;});",
+    q: "Complete the missing code:",
+    options: ["1", "2", "10", "20"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "const bull=c.c>=c.o,col=bull?'#00E676':'<span class=\"blank\">____</span>';",
+    q: "Complete the missing code:",
+    options: ["#FF4B4B", "#FFD166", "#38BDF8", "#7A96AE"],
+    correct: 0
+  },
+  {
+    type: "fill",
+    code: "document.getElementById('sessionLabel').textContent=h>=8&&h<16?'LONDON':h>=13&&h<21?'<span class=\"blank\">____</span>':'TOKYO';",
+    q: "Complete the missing code:",
+    options: ["PARIS", "NEW YORK", "SYDNEY", "DUBAI"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "const rsi=30+Math.random()*40+(Math.random()>0.5?5:<span class=\"blank\">____</span>);",
+    q: "Complete the missing code:",
+    options: ["0", "-5", "5", "-10"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "ri.style.color=rsi<35?'var(--green)':rsi><span class=\"blank\">____</span>?'var(--red)':'var(--gold)';",
+    q: "Complete the missing code:",
+    options: ["50", "60", "65", "70"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "const atr=(6+Math.random()*<span class=\"blank\">____</span>).toFixed(1);",
+    q: "Complete the missing code:",
+    options: ["4", "6", "8", "12"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "function executeAlgoTrade(dir,lot=null){\n  ...\n  setTimeout(()=>{ ... },2000+Math.random()*<span class=\"blank\">____</span>);\n}",
+    q: "Complete the missing code:",
+    options: ["1000", "2000", "4000", "8000"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "const pip=10,winPips=35+Math.random()*<span class=\"blank\">____</span>,lossPips=12+Math.random()*6;",
+    q: "Complete the missing code:",
+    options: ["10", "15", "20", "25"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "const pip=10,winPips=35+Math.random()*20,lossPips=12+Math.random()*<span class=\"blank\">____</span>;",
+    q: "Complete the missing code:",
+    options: ["4", "6", "8", "10"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "if(isWin){STATE.wins++;STATE.streak=STATE.streak>=0?STATE.streak+1:<span class=\"blank\">____</span>;}",
+    q: "Complete the missing code:",
+    options: ["0", "1", "-1", "STATE.streak"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "else{STATE.losses++;STATE.streak=STATE.streak<=0?STATE.streak-1:<span class=\"blank\">____</span>;}",
+    q: "Complete the missing code:",
+    options: ["0", "1", "-1", "STATE.streak"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "function updateStats(){\n  const wr=STATE.wins+STATE.losses>0?(STATE.wins/(STATE.wins+STATE.losses)*100).toFixed(1):'<span class=\"blank\">____</span>';\n}",
+    q: "Complete the missing code:",
+    options: ["0.0", "50.0", "95.0", "100.0"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "document.getElementById('gaugeCircle').style.strokeDashoffset=(<span class=\"blank\">____</span>*(1-parseFloat(wr)/100)).toFixed(2);",
+    q: "Complete the missing code:",
+    options: ["100", "180", "289", "360"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "function placeManual(dir){\n  if(!STATE.funded||STATE.balance<=0){showToast('⚠ Deposit funds first','err');return;}\n  executeAlgoTrade(dir,parseFloat(document.getElementById('manualLot').value)||<span class=\"blank\">____</span>);\n}",
+    q: "Complete the missing code:",
+    options: ["0", "0.01", "0.05", "1"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "if(!email||!email.includes('<span class=\"blank\">____</span>')){showStatus(st,'⚠ Please enter a valid email address.','err');return;}",
+    q: "Complete the missing code:",
+    options: [".", "@", "#", "//"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "document.getElementById('pf_item_name').value='<span class=\"blank\">____</span>';",
+    q: "Complete the missing code:",
+    options: ["Deposit", "AuTrader Pro Deposit", "PayFast Payment", "Gold Trade"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "document.getElementById('pf_payment_method').value=STATE.<span class=\"blank\">____</span>;",
+    q: "Complete the missing code:",
+    options: ["method", "selectedMethod", "paymentMethod", "activeMethod"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "if(amount>STATE.balance){showStatus(st,'⚠ Insufficient balance. Available: R'+STATE.balance.toFixed(2),'<span class=\"blank\">____</span>');return;}",
+    q: "Complete the missing code:",
+    options: ["ok", "info", "err", "loading"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "if(!amount||amount<<span class=\"blank\">____</span>){showStatus(st,'⚠ Minimum withdrawal is R10.00','err');return;}",
+    q: "Complete the missing code:",
+    options: ["1", "5", "10", "50"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "STATE.withdrawalLog.<span class=\"blank\">____</span>({method:'bank',id:refId,amount,name,bank,acct,branch,acctType,submittedAt:new Date().toLocaleString('en-ZA'),status:'pending'});",
+    q: "Complete the missing code:",
+    options: ["push", "unshift", "add", "insert"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "document.getElementById('pendingWdIndicator').style.display='<span class=\"blank\">____</span>';",
+    q: "Complete the missing code:",
+    options: ["show", "flex", "block", "visible"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "['withdrawAmount','withdrawName','withdrawAcct','withdrawBranch'].forEach(id=>document.getElementById(id).<span class=\"blank\">____</span>='');",
+    q: "Complete the missing code:",
+    options: ["textContent", "value", "innerHTML", "data"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "<div class=\"method-card active\" id=\"mEft\" onclick=\"selectMethod('<span class=\"blank\">____</span>')\">EFT</div>",
+    q: "Complete the missing code:",
+    options: ["eft", "cc", "mobicred", "bank"],
+    correct: 0
+  },
+  {
+    type: "fill",
+    code: "if(!email||!email.includes('@')||!email.includes('<span class=\"blank\">____</span>')){showStatus(st,'⚠ Enter a valid PayPal email address.','err');return;}",
+    q: "Complete the missing code:",
+    options: ["@", ".", "-", "_"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "const refId='<span class=\"blank\">____</span>'+Date.now()+'-'+Math.random().toString(36).substr(2,5).toUpperCase();\n// used inside initiatePaypalWithdraw()",
+    q: "Complete the missing code:",
+    options: ["WD-", "PP-", "TX-", "AP-"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "function renderWithdrawalLog(){\n  const c=document.getElementById('wlogContainer');\n  if(!STATE.withdrawalLog.<span class=\"blank\">____</span>){\n    c.innerHTML='...';return;\n  }\n}",
+    q: "Complete the missing code:",
+    options: ["size", "length", "count", "total"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "function openModal(type){\n  ...\n  document.getElementById(type+'Modal').classList.add('<span class=\"blank\">____</span>');\n}",
+    q: "Complete the missing code:",
+    options: ["open", "show", "active", "visible"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{\n  if(e.target===m)m.classList.<span class=\"blank\">____</span>('show');\n}));",
+    q: "Complete the missing code:",
+    options: ["add", "remove", "toggle", "contains"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "function showStatus(el,msg,type){\n  el.textContent=msg;el.className='status-msg '+type;el.style.display='<span class=\"blank\">____</span>';\n}",
+    q: "Complete the missing code:",
+    options: ["show", "flex", "block", "inline"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "function showToast(msg,type='info'){\n  const tc=document.getElementById('toast-container'),t=document.createElement('<span class=\"blank\">____</span>');\n}",
+    q: "Complete the missing code:",
+    options: ["span", "div", "p", "section"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "t.innerHTML=`<span>${type==='ok'?'✓':type==='err'?'✗':'<span class=\"blank\">____</span>'}</span> ${msg}`;",
+    q: "Complete the missing code:",
+    options: ["!", "◈", "•", "?"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "setTimeout(()=>{\n  t.style.opacity='0';t.style.transition='opacity .4s';\n  setTimeout(()=>t.remove(),<span class=\"blank\">____</span>);\n},3500);",
+    q: "Complete the missing code:",
+    options: ["100", "250", "400", "1000"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "tc.appendChild(t);\nsetTimeout(()=>{ ... },<span class=\"blank\">____</span>);",
+    q: "Complete the missing code:",
+    options: ["1500", "2500", "3500", "5000"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: ":root{\n  --gold:<span class=\"blank\">____</span>;--gold2:#F4A836;--gold-glow:rgba(255,209,102,0.18);\n}",
+    q: "Complete the missing code:",
+    options: ["#FFD166", "#FFC107", "#F4A836", "#FFEB99"],
+    correct: 0
+  },
+  {
+    type: "fill",
+    code: "--bg:#080C10;--bg2:<span class=\"blank\">____</span>;--bg3:#131B24;--bg4:#1A2535;",
+    q: "Complete the missing code:",
+    options: ["#0A0E14", "#0D1117", "#101820", "#111827"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: ".layout{display:grid;grid-template-columns:1fr <span class=\"blank\">____</span>;gap:0;min-height:calc(100vh - 54px);}",
+    q: "Complete the missing code:",
+    options: ["250px", "280px", "310px", "340px"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: ".modal-overlay{display:none;position:<span class=\"blank\">____</span>;inset:0;background:rgba(0,0,0,0.8);z-index:200;}",
+    q: "Complete the missing code:",
+    options: ["absolute", "relative", "fixed", "sticky"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: ".modal-box{...width:460px;max-width:<span class=\"blank\">____</span>vw;padding:24px;...}",
+    q: "Complete the missing code:",
+    options: ["85", "90", "95", "100"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "@keyframes pulse{0%,100%{opacity:1;...}50%{opacity:<span class=\"blank\">____</span>;...}}",
+    q: "Complete the missing code:",
+    options: [".3", ".6", ".8", "0"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: ".toggle{width:32px;height:17px;background:var(--bg4);border-radius:<span class=\"blank\">____</span>px;cursor:pointer;}",
+    q: "Complete the missing code:",
+    options: ["4", "10", "20", "50"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "@media(max-width:<span class=\"blank\">____</span>){.layout{grid-template-columns:1fr;}.side-col{border-left:none;border-top:1px solid var(--border);}}",
+    q: "Complete the missing code:",
+    options: ["768px", "900px", "992px", "1024px"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "body::before{content:'';position:<span class=\"blank\">____</span>;inset:0;background:repeating-linear-gradient(...);pointer-events:none;z-index:9999;}",
+    q: "Complete the missing code:",
+    options: ["absolute", "relative", "fixed", "static"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@<span class=\"blank\">____</span>/dist/css/bootstrap.min.css\" rel=\"stylesheet\"/>",
+    q: "Complete the missing code:",
+    options: ["4.6.0", "5.1.3", "5.3.0", "5.3.3"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "<meta name=\"viewport\" content=\"width=device-width, initial-scale=<span class=\"blank\">____</span>, maximum-scale=1.0, user-scalable=no\"/>",
+    q: "Complete the missing code:",
+    options: ["0.5", "1.0", "2.0", "auto"],
+    correct: 1
+  },
+  {
+    type: "fill",
+    code: "<input class=\"inp\" type=\"number\" id=\"depositAmount\" placeholder=\"e.g. 500\" min=\"<span class=\"blank\">____</span>\" step=\"0.01\"/>",
+    q: "Complete the missing code:",
+    options: ["1", "5", "10", "100"],
+    correct: 2
+  },
+  {
+    type: "fill",
+    code: "<select class=\"inp\" id=\"lotSize\">\n  <option>0.01</option><option <span class=\"blank\">____</span>>0.05</option><option>0.10</option>\n</select>",
+    q: "Complete the missing code:",
+    options: ["default", "checked", "selected", "active"],
+    correct: 2
+  },
+];
+
+
+let current = 0;
+let selections = new Array(questions.length).fill(null);
+let logLines = [];
+
+function startQuiz(){
+  switchScreen('screen-quiz');
+  current = 0;
+  renderQuestion();
+}
+
+function switchScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion(){
+  const item = questions[current];
+  document.getElementById('progress-label').textContent = `Q${current+1}/${questions.length}`;
+  document.getElementById('progress-fill').style.width = `${((current+1)/questions.length)*100}%`;
+
+  const methodEl = document.querySelector('#screen-quiz .req-line .method');
+  const pathEl = document.getElementById('req-path');
+  if(item.type === 'fill'){
+    methodEl.textContent = 'PATCH';
+    methodEl.classList.add('patch');
+    pathEl.textContent = `/complete-code/${current+1}`;
+  } else {
+    methodEl.textContent = 'GET';
+    methodEl.classList.remove('patch');
+    pathEl.textContent = `/question/${current+1}`;
+  }
+
+  const questionTextEl = document.getElementById('question-text');
+  if(item.code){
+    questionTextEl.innerHTML =
+      `<div class="question-code">${item.code}</div><div>${item.q}</div>`;
+  } else {
+    questionTextEl.textContent = item.q;
+  }
+  updateScoreLabel();
+
+  const answersEl = document.getElementById('answers');
+  answersEl.innerHTML = '';
+  const letters = ['A','B','C','D'];
+
+  item.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn' + (item.type === 'fill' ? ' code-opt' : '');
+    btn.innerHTML = `<span class="tag">${letters[idx]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(idx);
+
+    const chosen = selections[current];
+    if(chosen !== null){
+      btn.disabled = true;
+      if(idx === item.correct) btn.classList.add('correct');
+      else if(idx === chosen && chosen !== item.correct) btn.classList.add('wrong');
+    }
+    answersEl.appendChild(btn);
+  });
+
+  document.getElementById('btn-back').style.visibility = current === 0 ? 'hidden' : 'visible';
+  document.getElementById('btn-next').disabled = selections[current] === null;
+  document.getElementById('btn-next').textContent = current === questions.length - 1 ? 'submit →' : 'next →';
+
+  renderLog();
+}
+
+function selectAnswer(idx){
+  if(selections[current] !== null) return; // lock after first pick
+  selections[current] = idx;
+
+  const item = questions[current];
+  const isCorrect = idx === item.correct;
+  logLines.push({
+    method: item.type === 'fill' ? 'PATCH' : 'GET',
+    path: item.type === 'fill' ? `/complete-code/${current+1}` : `/question/${current+1}`,
+    ok: isCorrect
+  });
+
+  renderQuestion();
+}
+
+function updateScoreLabel(){
+  const score = selections.filter((sel, i) => sel === questions[i].correct).length;
+  document.getElementById('score-label').textContent = `score: ${score}`;
+}
+
+function renderLog(){
+  const log = document.getElementById('server-log');
+  log.innerHTML = logLines.map(l =>
+    `<div class="log-line">${l.method} ${l.path} → <span class="${l.ok ? 'ok' : 'err'}">${l.ok ? '200 OK' : '400 Bad Request'}</span></div>`
+  ).join('') || '<div class="log-line">awaiting first request…</div>';
+  log.scrollTop = log.scrollHeight;
+}
+
+function goNext(){
+  if(selections[current] === null) return;
+  if(current === questions.length - 1){
+    showResults();
+  } else {
+    current++;
+    renderQuestion();
+  }
+}
+
+function goBack(){
+  if(current === 0) return;
+  current--;
+  renderQuestion();
+}
+
+function showResults(){
+  const score = selections.filter((sel, i) => sel === questions[i].correct).length;
+  const total = questions.length;
+
+  const badge = document.getElementById('result-status');
+  const title = document.getElementById('result-title');
+  const msg = document.getElementById('result-message');
+  badge.className = 'status-badge';
+
+  if(score === total){
+    badge.textContent = '200'; badge.classList.add('status-200');
+    title.textContent = 'OK';
+    msg.textContent = 'Full marks — every response resolved correctly. You could read this server\'s code cold.';
+  } else if(score >= total * 0.7){
+    badge.textContent = '206'; badge.classList.add('status-206');
+    title.textContent = 'Partial Content';
+    msg.textContent = 'Solid run. A couple of requests came back mismatched — worth a re-read of the snippet.';
+  } else if(score >= total * 0.4){
+    badge.textContent = '400'; badge.classList.add('status-400');
+    title.textContent = 'Bad Request';
+    msg.textContent = 'Mixed results. Re-trace the flow from require() down to listen() and try again.';
+  } else {
+    badge.textContent = '500'; badge.classList.add('status-500');
+    title.textContent = 'Internal Error';
+    msg.textContent = 'Something didn\'t connect yet. Go back through the code block line by line, then re-run.';
+  }
+
+  document.getElementById('result-summary').textContent = `${score} / ${total} correct`;
+
+  const breakdown = document.getElementById('breakdown');
+  breakdown.innerHTML = questions.map((item, i) => {
+    const ok = selections[i] === item.correct;
+    return `<div class="breakdown-row">
+      <span>${i+1}. ${item.q}</span>
+      <span class="${ok ? 'res-ok' : 'res-bad'}">${ok ? '200' : '400'}</span>
+    </div>`;
+  }).join('');
+
+  switchScreen('screen-results');
+}
+
+function restartQuiz(){
+  current = 0;
+  selections = new Array(questions.length).fill(null);
+  logLines = [];
+  switchScreen('screen-start');
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
